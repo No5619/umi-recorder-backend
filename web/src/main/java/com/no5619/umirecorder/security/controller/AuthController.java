@@ -1,11 +1,8 @@
-package com.no5619.umirecorder.controller.security;
+package com.no5619.umirecorder.security.controller;
 
 import java.util.Collections;
-import java.util.NoSuchElementException;
 
-import javax.naming.AuthenticationException;
-
-import com.no5619.umirecorder.config.security.AuthenticatedUser;
+import com.no5619.umirecorder.security.config.AuthenticatedUser;
 import com.no5619.umirecorder.dto.LoginDto;
 import com.no5619.umirecorder.dto.RegisterDto;
 import com.no5619.umirecorder.entity.Role;
@@ -17,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,7 +42,7 @@ public class AuthController {
 
 
 
-	@PostMapping("login")
+	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
 		//如果login帳密打錯，在authenticationManager.authenticate內會拋出錯誤
 		//authenticationManager會透過動態代理的方式，調用UserDetailsService (被自己寫的CustomerUserDetailsService繼承)
@@ -62,7 +58,7 @@ public class AuthController {
 		return new ResponseEntity<>("User signed sucess!", HttpStatus.OK);
 	}
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             return new ResponseEntity<>("Email is taken!", HttpStatus.BAD_REQUEST);

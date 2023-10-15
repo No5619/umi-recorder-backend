@@ -1,4 +1,4 @@
-package com.no5619.umirecorder.config.security;
+package com.no5619.umirecorder.security.config;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

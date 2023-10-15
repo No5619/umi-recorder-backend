@@ -1,4 +1,4 @@
-package com.no5619.umirecorder.config.security;
+package com.no5619.umirecorder.security.config;
 
 import com.no5619.umirecorder.entity.UserEntity;
 import com.no5619.umirecorder.repository.UserRepository;

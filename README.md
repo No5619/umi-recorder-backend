@@ -1,2 +1,2 @@
-JDK: 17.0.8
-SpringBoot: 3.1.4
+- JDK: 17.0.8
+- SpringBoot: 3.0.11
