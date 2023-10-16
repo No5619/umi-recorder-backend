@@ -2,6 +2,7 @@ package com.no5619.umirecorder.security.config;
 
 import com.no5619.umirecorder.entity.UserEntity;
 import com.no5619.umirecorder.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service("userDetailService")
 public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
@@ -32,12 +34,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 														.collect( Collectors.toList() );
 		User user = new User(userEntity.getEmail(), userEntity.getPassword(), roles);
 
-		System.out.println("CustomUserDetailsService.loadUserByUsername##############################");
-		System.out.println("CustomUserDetailsService.loadUserByUsername被AuthenticationManager調用!!!!");
-		System.out.println("roles: " + roles);
-		System.out.println("user: " + user);
-		System.out.println("#########################################################################");
-
+		log.info("CustomUserDetailsService.loadUserByUsername被AuthenticationManager調用!!!!");
+		log.info("roles:{}" + roles);
+		log.info("user:{}", user);
 		return user;
 	}
 	

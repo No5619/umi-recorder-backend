@@ -1,5 +1,6 @@
 package com.no5619.umirecorder.controller;
 
+import com.no5619.umirecorder.security.config.AuthedUser;
 import com.no5619.umirecorder.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,7 @@ public class TestController {
     private TestService testService;
 
     @GetMapping("/echo")
-    public String echo(String input) {
+    public String echo(AuthedUser authedUser, String input) {
         return testService.echo(input);
     }
 }

@@ -8,24 +8,36 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticatedUser extends UsernamePasswordAuthenticationToken {
+public class AuthedUser extends UsernamePasswordAuthenticationToken {
+    private String username = null;
     private String sessionId = null;
     private Date loginTime = null;
     //當session用
     private Map<String, Object> sessionData = new HashMap<>();
 
-    public AuthenticatedUser(Object principal, Object credentials) {
+    public AuthedUser(Object principal, Object credentials) {
         super(principal, credentials);
     }
 
-    public AuthenticatedUser(Object principal, Object credentials, String sessionId) {
+    public AuthedUser(Object principal, Object credentials, String sessionId) {
         super(principal, credentials);
+        this.username = (String) principal;
         this.sessionId = sessionId;
         this.loginTime = new Date();
     }
 
-    public AuthenticatedUser(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+    public AuthedUser(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities, String sessionId) {
         super(principal, credentials, authorities);
+        this.username = (String) principal;
+        this.sessionId = sessionId;
+        this.loginTime = new Date();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getSessionId() {

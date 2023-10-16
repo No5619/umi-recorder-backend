@@ -2,7 +2,7 @@ package com.no5619.umirecorder.security.controller;
 
 import java.util.Collections;
 
-import com.no5619.umirecorder.security.config.AuthenticatedUser;
+import com.no5619.umirecorder.security.config.AuthedUser;
 import com.no5619.umirecorder.dto.LoginDto;
 import com.no5619.umirecorder.dto.RegisterDto;
 import com.no5619.umirecorder.entity.Role;
@@ -10,13 +10,13 @@ import com.no5619.umirecorder.entity.UserEntity;
 import com.no5619.umirecorder.repository.RoleRepository;
 import com.no5619.umirecorder.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 懶得寫AuthService，把他一起寫在Controller上
  */
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -41,21 +42,26 @@ public class AuthController {
 	private HttpServletRequest request;
 
 
-
+	/**
+	 * 使用 AuthedUser extends UsernamePasswordAuthenticationToken 後， <br>
+	 * 就無法將Authentication，轉型成 UserDetails，只能轉成AuthedUser <br>
+	 * 不確定會因此產生其他issue
+	 */
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
 		//如果login帳密打錯，在authenticationManager.authenticate內會拋出錯誤
 		//authenticationManager會透過動態代理的方式，調用UserDetailsService (被自己寫的CustomerUserDetailsService繼承)
 		Authentication authentication = authenticationManager.authenticate(
-				new AuthenticatedUser(loginDto.email, loginDto.password, request.getRequestedSessionId())
+				new AuthedUser(loginDto.email, loginDto.password, request.getRequestedSessionId())
+//				new UsernamePasswordAuthenticationToken(loginDto.getEmail(),
+//														loginDto.getPassword())
 		);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		System.out.println("login controller##########################################");
-		System.out.println("authentication: " + authentication);
-		System.out.println("UserName: " + ((UserDetails)authentication.getPrincipal()).getUsername() );
-		System.out.println("##########################################################");
-		System.out.println();
-		return new ResponseEntity<>("User signed sucess!", HttpStatus.OK);
+
+		log.info("authentication:{}", authentication);
+		log.info("UserName:{}", ((AuthedUser)authentication).getUsername());
+		log.info("SessionId:{}", request.getRequestedSessionId());
+		return new ResponseEntity<>("User signed success!", HttpStatus.OK);
 	}
 
     @PostMapping("/register")
@@ -72,7 +78,9 @@ public class AuthController {
         user.setRoles(Collections.singletonList(role));
         userRepository.save(user);
 
-        return new ResponseEntity<>("User registered success!", HttpStatus.OK);
+		log.info("SessionId:{}", request.getRequestedSessionId());
+
+		return new ResponseEntity<>("User registered success!", HttpStatus.OK);
     }
 	
 }
