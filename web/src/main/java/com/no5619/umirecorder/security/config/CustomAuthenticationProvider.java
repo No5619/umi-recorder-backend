@@ -37,7 +37,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(password))
+        if (StringUtils.isBlank(username))
             throw new UsernameNotFoundException("username用戶名不可為空");
         if(StringUtils.isBlank(password))
             throw new BadCredentialsException("password密碼不可為空");

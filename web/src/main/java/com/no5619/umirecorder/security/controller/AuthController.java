@@ -2,6 +2,7 @@ package com.no5619.umirecorder.security.controller;
 
 import java.util.Collections;
 
+import com.no5619.umirecorder.dto.MsgDto;
 import com.no5619.umirecorder.security.config.AuthedUser;
 import com.no5619.umirecorder.dto.LoginDto;
 import com.no5619.umirecorder.dto.RegisterDto;
@@ -48,7 +49,7 @@ public class AuthController {
 	 * 不確定會因此產生其他issue
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
+	public MsgDto login(@RequestBody LoginDto loginDto){
 		//如果login帳密打錯，在authenticationManager.authenticate內會拋出錯誤
 		//authenticationManager會透過動態代理的方式，調用UserDetailsService (被自己寫的CustomerUserDetailsService繼承)
 		Authentication authentication = authenticationManager.authenticate(
@@ -61,26 +62,28 @@ public class AuthController {
 		log.info("authentication:{}", authentication);
 		log.info("UserName:{}", ((AuthedUser)authentication).getUsername());
 		log.info("SessionId:{}", request.getRequestedSessionId());
-		return new ResponseEntity<>("User signed success!", HttpStatus.OK);
+
+		return new MsgDto("User signed success!", HttpStatus.OK.value());
 	}
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+    @PostMapping("/signup")
+    public ResponseEntity<MsgDto> register(@RequestBody RegisterDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
-            return new ResponseEntity<>("Email is taken!", HttpStatus.BAD_REQUEST);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(new MsgDto("Email is taken!", HttpStatus.BAD_REQUEST.value()));
         }
 
         UserEntity user = new UserEntity();
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
         user.setName(null);
-        Role role = roleRepository.findByName("USER").orElseThrow(() -> new SecurityException("找不到role"));
+        Role role = roleRepository.findByName("USER").orElseThrow(() -> new SecurityException("帳號無對應權限(查無role)"));
         user.setRoles(Collections.singletonList(role));
         userRepository.save(user);
 
 		log.info("SessionId:{}", request.getRequestedSessionId());
-
-		return new ResponseEntity<>("User registered success!", HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(new MsgDto("User registered success!",  HttpStatus.OK.value()));
     }
-	
+
 }

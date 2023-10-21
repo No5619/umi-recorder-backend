@@ -23,6 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		log.info("CustomUserDetailsService.loadUserByUsername被AuthenticationManager調用!!!!");
+
 		//透過DAO、Repository向DB查出帳密
 		UserEntity userEntity = userRepository.findByEmail(email)
                                               .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
@@ -34,7 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 														.collect( Collectors.toList() );
 		User user = new User(userEntity.getEmail(), userEntity.getPassword(), roles);
 
-		log.info("CustomUserDetailsService.loadUserByUsername被AuthenticationManager調用!!!!");
 		log.info("roles:{}" + roles);
 		log.info("user:{}", user);
 		return user;
