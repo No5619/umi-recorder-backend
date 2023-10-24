@@ -15,6 +15,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -24,6 +29,8 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 public class SecurityConfig {
     @Autowired
     private CustomAuthenticationProvider customAuthenticationProvider;
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,7 +45,8 @@ public class SecurityConfig {
 
             //The cors() method will add the Spring-provided CorsFilter to the application context,
             //bypassing the authorization checks for OPTIONS requests.
-            .cors(Customizer.withDefaults())
+            //.cors(Customizer.withDefaults())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
             .headers(headers -> headers.frameOptions().disable())
             .authorizeHttpRequests(auth -> auth
@@ -47,10 +55,18 @@ public class SecurityConfig {
                 //.requestMatchers("/actuator/**").permitAll()
                 .anyRequest().hasAnyRole("USER", "ADMIN")
             )
+
             .logout(logoutCustomizer -> logoutCustomizer
                     .logoutUrl("/auth/logout")
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                     .deleteCookies("JSESSIONID")
+            )
+
+            //打"/oauth2/authorization/*"這個API，就可進行Oauth
+            //ex: 有application.properties有設定google的Oauth，就會長出"/oauth2/authorization/google"這個API
+            .oauth2Login(oath2 -> oath2
+                //.loginPage("/auth/oauth2").permitAll() //若登入失敗為自動導頁(前後端不分離用)
+                .successHandler(oAuth2LoginSuccessHandler)
             )
 
             //預設基本認證方式，每次請求時在HttpRequestHeader要加上Authorization header
@@ -63,12 +79,17 @@ public class SecurityConfig {
             .build();
     }
 
-//    @Bean
-//    public WebSecurityCustomizer ignoringCustomizer() {
-//        return (web) -> {
-//            web.ignoring().requestMatchers("/h2-console");
-//        };
-//    }
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
+        return urlBasedCorsConfigurationSource;
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
