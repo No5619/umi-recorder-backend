@@ -5,15 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class LoginDto {
+@NoArgsConstructor
+public class SignupDto {
     private String email;
     private String password;
+    private String name;
     private String captchaCode;
 
-    public LoginDto(String email, String password) {
+    public SignupDto(String email, String password, String name) {
         this.email = email;
         this.password = password;
+        this.name = name;
     }
 }

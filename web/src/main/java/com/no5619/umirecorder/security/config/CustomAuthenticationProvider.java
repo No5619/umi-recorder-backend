@@ -27,10 +27,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     private HttpServletRequest request;
 
     //避免securityConfig、AuthenticationProvider循環依賴，改用ApplicationContext取得依賴
-    //@Autowired
-    PasswordEncoder passwordEncoder;
     @Autowired
     private ApplicationContext appContext;
+    PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -45,8 +44,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         UserDetails user = customUserDetailsService.loadUserByUsername(username);
         Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 
+        // TODO: !password.equals(user.getPassword()) 此段不確定是否安全
+        // 因Oauth"註冊"，密碼使用UUID，再使用Oauth"登入"，直接抓出那筆email的密碼，
+        // 但直接抓出的密碼為密文，passwordEncoder.matches(密文, 密文) => 會等於false
         passwordEncoder = appContext.getBean(PasswordEncoder.class);
-        if (!passwordEncoder.matches(password, user.getPassword()))
+        if (!passwordEncoder.matches(password, user.getPassword()) && !password.equals(user.getPassword()))
             throw new BadCredentialsException("password密碼錯誤");
 
         return new AuthedUser(username, password, authorities, request.getRequestedSessionId());

@@ -1,5 +1,6 @@
 package com.no5619.umirecorder.security.config;
 
+import com.no5619.umirecorder.security.filter.AfterLoggedinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +13,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -68,6 +71,9 @@ public class SecurityConfig {
                 //.loginPage("/auth/oauth2").permitAll() //若登入失敗為自動導頁(前後端不分離用)
                 .successHandler(oAuth2LoginSuccessHandler)
             )
+
+            .addFilterAfter(new AfterLoggedinFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(new AfterLoggedinFilter(), OAuth2LoginAuthenticationFilter.class)
 
             //預設基本認證方式，每次請求時在HttpRequestHeader要加上Authorization header
             //不使用httpBasic，原本抱401錯誤會變成報403錯誤
