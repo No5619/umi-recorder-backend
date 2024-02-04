@@ -88,4 +88,9 @@ public class AuthService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new MsgDto("signed in successfully!",  HttpStatus.OK.value()));
     }
+
+    public ResponseEntity<MsgDto> noLogin() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new MsgDto("please login first", HttpStatus.UNAUTHORIZED.value()));
+    }
 }

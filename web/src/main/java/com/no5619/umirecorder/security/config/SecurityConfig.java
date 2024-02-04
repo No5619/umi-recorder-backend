@@ -68,8 +68,8 @@ public class SecurityConfig {
             //打"/oauth2/authorization/*"這個API，就可進行Oauth
             //ex: 有application.properties有設定google的Oauth，就會長出"/oauth2/authorization/google"這個API
             .oauth2Login(oath2 -> oath2
-                //.loginPage("/auth/oauth2").permitAll() //若登入失敗為自動導頁(前後端不分離用)
-                .successHandler(oAuth2LoginSuccessHandler)
+                    .loginPage("/auth/nologin").permitAll() //若未登入或登入失敗，自動打未登入的RestController
+                    .successHandler(oAuth2LoginSuccessHandler)
             )
 
             .addFilterAfter(new AfterLoggedinFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -80,7 +80,7 @@ public class SecurityConfig {
             //.httpBasic(Customizer.withDefaults())
 
             //disable redirecting to the default login page
-            .formLogin().disable()
+            .formLogin(form -> form.loginPage("/auth/nologin").permitAll()) //若未登入或登入失敗，自動打未登入的RestController
 
             .build();
     }

@@ -24,10 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 懶得寫AuthService，把他一起寫在Controller上
@@ -52,4 +49,9 @@ public class AuthController {
 		captchaService.checkCaptcha(signupDto.getCaptchaCode());
 		return authService.signup(signupDto);
     }
+
+	@GetMapping("/nologin")
+	public ResponseEntity<MsgDto> noLogin() {
+		return authService.noLogin();
+	}
 }
