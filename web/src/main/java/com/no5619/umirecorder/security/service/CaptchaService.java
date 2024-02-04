@@ -5,10 +5,12 @@ import cn.hutool.captcha.CircleCaptcha;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CaptchaService {
     @Autowired
@@ -21,7 +23,9 @@ public class CaptchaService {
     public String getCaptcha() {
         // 这里是创建验证码的长、宽、验证码字符数、干扰元素数量
         CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(160, 80, 4, 50);
-        session.setAttribute("code", captcha.getCode());
+        String captchaCode = captcha.getCode();
+        session.setAttribute("code", captchaCode);
+        log.info("add captcha code ({}) to session", captchaCode);
         // 获取验证码图片base64
         String base64Img = captcha.getImageBase64();
         return base64Img;
